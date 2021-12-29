@@ -1,0 +1,12 @@
+storageClasses:
+- name: juicefs-sc
+  enabled: true
+  reclaimPolicy: Retain
+  backend:
+    name: awesome-file-system
+    metaurl: mysql://root:@(mysql.kubeflow:3306)/juicefs
+    # metaurl: sqlite3:///meta/juicefs.db
+    storage: minio
+    accessKey: minio
+    secretKey: minio123
+    bucket: http://minio-service.kubeflow:9000/juicefs

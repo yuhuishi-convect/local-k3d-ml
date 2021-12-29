@@ -1,0 +1,15 @@
+apiVersion: k3d.io/v1alpha2
+kind: Simple
+name: ml-local-box
+servers: 1
+agents: 1
+image: docker.io/rancher/k3s:v1.21.1-k3s1
+ports:
+- port: 9090:80
+  nodeFilters:
+    - loadbalancer
+volumes:
+# for juice fs filesystem
+- volume: /home/yuhuishi/temp/juicefs/:/var/lib/juicefs/:shared
+- volume: /home/yuhuishi/temp/jscache/:/var/jfsCache/:shared
+

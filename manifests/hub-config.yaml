@@ -1,0 +1,59 @@
+proxy:
+  service:
+    type: ClusterIP
+ingress:
+  enabled: true
+  hosts:
+    - dev-box
+  annotations:
+    kubernetes.io/ingress.class: "traefik"
+hub:
+  config:
+    GitHubOAuthenticator:
+      client_id: <PUT YOUR GITHUB APP CLIENT ID HERE>
+      client_secret: <PUT YOUR GITHUB APP SECRET HERE>
+      oauth_callback_url: http://dev-box:9090/hub/oauth_callback
+    JupyterHub:
+      authenticator_class: github
+singleuser:
+  defaultUrl: "/lab"             
+  # Defines the default image
+  image:
+    name: elyra/elyra
+    tag: latest
+  # mount additional shared volume storage for all users
+  storage:
+    extraVolumes:
+      - name: shared-storage
+        persistentVolumeClaim:
+          claimName: shared-notebook-pvc
+    extraVolumeMounts:
+      - name: shared-storage
+        mountPath: /home/jovyan/shared
+  # add kfp runtime information
+  lifecycleHooks:
+    postStart:
+      exec:
+        command: 
+        - sh
+        - -cex 
+        - |
+          cat << EOF > /home/jovyan/.local/share/jupyter/metadata/runtimes/remote-kfp.json
+          {
+            "display_name": "kfp-remote",
+            "metadata": {
+              "api_endpoint": "http://ml-pipeline-ui.kubeflow/pipeline",
+              "cos_endpoint": "http://minio-service.kubeflow:9000",
+              "cos_username": "minio",
+              "cos_password": "minio123",
+              "cos_bucket": "elyra",
+              "engine": "Argo",
+              "tags": []
+            },
+            "schema_name": "kfp"
+          }
+          EOF
+  profileList:
+    - display_name: "Elyra environment"
+      description: "Notebook environment with elyra plugin enabled"
+      default: true
