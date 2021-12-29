@@ -39,7 +39,7 @@ kubectl apply -k "github.com/kubeflow/pipelines/manifests/kustomize/env/platform
 Create an ingress to expose the kubeflow pipeline service.
 
 
-## JuiceFS (not working)
+## JuiceFS 
 
 Add helm repo of juiceFS
 
