@@ -10,8 +10,8 @@ ingress:
 hub:
   config:
     GitHubOAuthenticator:
-      client_id: <PUT YOUR GITHUB APP CLIENT ID HERE>
-      client_secret: <PUT YOUR GITHUB APP SECRET HERE>
+      client_id: <PUT YOUR IGTHUB CLIENT ID>
+      client_secret: <PUT YOUR IGTHUB CLIENT SECRET>
       oauth_callback_url: http://dev-box:9090/hub/oauth_callback
     JupyterHub:
       authenticator_class: github
@@ -38,6 +38,7 @@ singleuser:
         - sh
         - -cex 
         - |
+          mkdir -p /home/jovyan/.local/share/jupyter/metadata/runtimes/
           cat << EOF > /home/jovyan/.local/share/jupyter/metadata/runtimes/remote-kfp.json
           {
             "display_name": "kfp-remote",
@@ -57,3 +58,26 @@ singleuser:
     - display_name: "Elyra environment"
       description: "Notebook environment with elyra plugin enabled"
       default: true
+
+    - display_name: "Code Server"
+      description: "Environment with extra Code Server"
+      kubespawner_override:
+        image: dayeye2006/jupyter-cdr:latest
+  extraFiles:
+    jupyter_server_proxy:
+      mountPath: /home/jovyan/.jupyter/jupyter_notebook_config.py
+      stringData: |
+        c.ServerProxy.servers = {
+          'code-server': {
+            'command': [
+              'code-server',
+                '--auth=none',
+                '--disable-telemetry',
+                '--bind-addr=localhost:{port}'
+            ],
+            'timeout': 20,
+            'launcher_entry': {
+              'title': 'VS Code'
+            }
+          }
+        }
